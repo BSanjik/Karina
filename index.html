@@ -78,6 +78,8 @@
       gap: 3px;
       place-items: center;
       transition: transform 0.4s ease;
+      transform: translateZ(0);
+      will-change: transform;
     }
 
     .container.pulse {
@@ -98,14 +100,21 @@
       font-size: calc(var(--cell) * 0.9);
       opacity: 0;
       transform: scale(0.3);
-      transition: transform 150ms ease, opacity 150ms ease;
+      transition: transform 200ms ease-out, opacity 200ms ease-out;
       background: linear-gradient(135deg, #f472b6, #ef4444);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.35));
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-font-smoothing: antialiased;
     }
     .heart::before { content: "❤️"; }
-    .heart.show { opacity: 1; transform: scale(1); }
+    .heart.show { 
+      opacity: 1; 
+      transform: scale(1);
+      will-change: auto;
+    }
 
     .sparkle {
       position: absolute;
@@ -309,23 +318,31 @@
     function animateHearts() {
       const hearts = buildGrid();
       
-      // Создаем массив индексов и перемешиваем его для случайного порядка
-      const indices = Array.from({length: hearts.length}, (_, i) => i);
-      for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-      }
+        // Создаем массив индексов и перемешиваем его для случайного порядка
+        const indices = Array.from({length: hearts.length}, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        
+        // Группируем анимации для лучшей производительности
+        const batchSize = 3; // Показываем по 3 сердечка одновременно
       
       let i = 0;
       function tick() {
         if (i < indices.length) {
-          const heartIndex = indices[i];
-          const el = hearts[heartIndex];
-          el.classList.add('show');
-          i++;
-            // Случайная задержка между появлениями сердечек (ускорено)
-            const randomDelay = 20 + Math.random() * 40;
-          setTimeout(tick, randomDelay);
+          // Показываем несколько сердечек одновременно для лучшей производительности
+          const endIndex = Math.min(i + batchSize, indices.length);
+          for (let j = i; j < endIndex; j++) {
+            const heartIndex = indices[j];
+            const el = hearts[heartIndex];
+            el.classList.add('show');
+          }
+          i = endIndex;
+          
+          // Увеличенная задержка между батчами для стабильности в Telegram
+          const batchDelay = 60 + Math.random() * 40;
+          setTimeout(tick, batchDelay);
         } else {
           container.classList.add('pulse');
           setTimeout(() => {
