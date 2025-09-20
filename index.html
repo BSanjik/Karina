@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>13x11 Heart + Character ❤️</title>
+  <style>
+    :root { 
+      --cell: 22px;
+      --character-size: 160px;
+    }
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100vh;
+      font-family: system-ui, -apple-system, "Inter", sans-serif;
+      overflow: hidden;
+    }
+
+    .main-content {
+      width: 100vh;
+      height: 100vw;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: radial-gradient(circle at center, #ffe4ec, #fff);
+      transform: rotate(90deg);
+      transform-origin: center center;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      margin-top: -50vw;
+      margin-left: -50vh;
+    }
+
+    .main-content.show {
+      display: flex;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .character-drawing {
+      width: var(--character-size);
+      height: var(--character-size);
+      position: absolute;
+      bottom: 15px;
+      left: 30px;
+    }
+
+    .character-drawing img {
+      width: var(--character-size);
+      height: var(--character-size);
+      object-fit: cover;
+      object-position: center;
+    }
+    
+    .character-drawing img.static-image {
+      object-fit: contain !important;
+      width: var(--character-size) !important;
+      height: var(--character-size) !important;
+      max-width: var(--character-size);
+      max-height: var(--character-size);
+    }
+    
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(13, var(--cell));
+      grid-auto-rows: var(--cell);
+      gap: 3px;
+      place-items: center;
+      transition: transform 0.4s ease;
+    }
+
+    .container.pulse {
+      animation: heartbeat 1.6s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.05); }
+      50% { transform: scale(0.97); }
+      75% { transform: scale(1.03); }
+    }
+
+    .heart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(var(--cell) * 0.9);
+      opacity: 0;
+      transform: scale(0.3);
+      transition: transform 150ms ease, opacity 150ms ease;
+      background: linear-gradient(135deg, #f472b6, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.35));
+    }
+    .heart::before { content: "❤️"; }
+    .heart.show { opacity: 1; transform: scale(1); }
+
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #fff, rgba(255,255,255,0));
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+      animation: sparkleAnim 0.8s ease-out forwards;
+    }
+
+    @keyframes sparkleAnim {
+      0% { opacity: 1; transform: scale(0.5); }
+      100% { opacity: 0; transform: scale(1.8) translateY(-20px); }
+    }
+
+    .final-text {
+      font-size: clamp(20px, 4vw, 34px);
+      color: #ec4899;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 500ms ease, transform 500ms ease;
+      text-align: center;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+    }
+    .final-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    button {
+      border: none;
+      background: linear-gradient(135deg, #f472b6, #ec4899);
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(236,72,153,.3);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 500ms ease, transform 500ms ease;
+    }
+    
+    button.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+
+    .countdown-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      color: white;
+      font-size: 32px;
+      text-align: center;
+    }
+
+    .countdown-number {
+      font-size: 80px;
+      font-weight: bold;
+      margin: 20px 0;
+      animation: pulse 1s ease-in-out;
+    }
+
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Адаптация для iPhone 13 и похожих устройств */
+    @media screen and (max-width: 430px) and (max-height: 932px) {
+      :root {
+        --cell: 18px;
+        --character-size: 130px;
+      }
+      
+      .main-content {
+        gap: 15px;
+      }
+      
+      .character-drawing {
+        bottom: 10px;
+        left: 20px;
+      }
+      
+      .final-text {
+        font-size: clamp(16px, 3vw, 24px);
+      }
+      
+      button {
+        padding: 8px 14px;
+        font-size: 14px;
+      }
+    }
+
+    /* Адаптация для очень маленьких экранов */
+    @media screen and (max-width: 375px) {
+      :root {
+        --cell: 16px;
+        --character-size: 110px;
+      }
+      
+      .character-drawing {
+        bottom: 8px;
+        left: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="countdown-screen" id="countdownScreen">
+    <div style="font-size: 20px; margin-bottom: 15px;">📱 Поверни телефон налево для лучшего просмотра</div>
+    <div>Анимация начнется через</div>
+    <div class="countdown-number" id="countdownNumber">10</div>
+    <div style="font-size: 18px; opacity: 0.7;">Приготовься! ❤️</div>
+  </div>
+
+  <div class="main-content">
+    <div class="character-drawing">
+      <img src="mlqcxbiu.gif" alt="Cute character" />
+    </div>
+
+    <div class="wrapper">
+      <div id="heartContainer" class="container"></div>
+      <div id="finalText" class="final-text">Я тебя обожаю моя маленькая принцесса ❤️</div>
+      <button id="replayBtn">Повторить</button>
+    </div>
+  </div>
+
+  <script>
+    const pattern = [
+      [0,0,1,1,1,0,0,0,1,1,1,0,0],
+      [0,1,1,1,1,1,0,1,1,1,1,1,0],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [0,1,1,1,1,1,1,1,1,1,1,1,0],
+      [0,0,1,1,1,1,1,1,1,1,1,0,0],
+      [0,0,0,1,1,1,1,1,1,1,0,0,0],
+      [0,0,0,0,1,1,1,1,1,0,0,0,0],
+      [0,0,0,0,0,1,1,1,0,0,0,0,0],
+      [0,0,0,0,0,0,1,0,0,0,0,0,0],
+    ];
+
+    const container = document.getElementById('heartContainer');
+    const finalText = document.getElementById('finalText');
+    const replayBtn = document.getElementById('replayBtn');
+
+    function createSparkle() {
+      const sparkle = document.createElement('div');
+      sparkle.classList.add('sparkle');
+      sparkle.style.left = `${Math.random() * 100}%`;
+      sparkle.style.top = `${Math.random() * 100}%`;
+      document.body.appendChild(sparkle);
+      setTimeout(() => sparkle.remove(), 800);
+    }
+
+    function buildGrid() {
+      // Немедленная полная очистка
+      container.innerHTML = '';
+      finalText.classList.remove('show');
+      replayBtn.classList.remove('show');
+      container.classList.remove('pulse');
+      
+      const hearts = [];
+      for (let rowIndex = 0; rowIndex < pattern.length; rowIndex++) {
+        const row = pattern[rowIndex];
+        for (const cell of row) {
+          if (cell === 1) {
+            const d = document.createElement('div');
+            d.className = 'cell heart';
+            d.dataset.row = rowIndex;
+            container.appendChild(d);
+            hearts.push(d);
+          } else {
+            const d = document.createElement('div');
+            d.className = 'cell empty';
+            container.appendChild(d);
+          }
+        }
+      }
+      return hearts;
+    }
+
+    function animateHearts() {
+      const hearts = buildGrid();
+      
+      // Создаем массив индексов и перемешиваем его для случайного порядка
+      const indices = Array.from({length: hearts.length}, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      
+      let i = 0;
+      function tick() {
+        if (i < indices.length) {
+          const heartIndex = indices[i];
+          const el = hearts[heartIndex];
+          el.classList.add('show');
+          i++;
+            // Случайная задержка между появлениями сердечек (ускорено)
+            const randomDelay = 20 + Math.random() * 40;
+          setTimeout(tick, randomDelay);
+        } else {
+          container.classList.add('pulse');
+          setTimeout(() => {
+            finalText.classList.add('show');
+            replayBtn.classList.add('show');
+          }, 500);
+          let sparks = 0;
+          const sparkleInterval = setInterval(() => {
+            createSparkle();
+            sparks++;
+            if (sparks > 12) clearInterval(sparkleInterval);
+          }, 150);
+        }
+      }
+      tick();
+    }
+
+    let isFirstTime = true;
+
+    function replaceGifWithStatic() {
+      const characterImg = document.querySelector('.character-drawing img');
+      characterImg.src = 'asd.gif';
+      characterImg.classList.add('static-image');
+    }
+
+    function restartCharacterGif() {
+      const characterImg = document.querySelector('.character-drawing img');
+      characterImg.classList.remove('static-image');
+      characterImg.src = 'mlqcxbiu.gif?' + new Date().getTime(); // Добавляем timestamp для перезапуска
+      
+      // Через 10.3 секунды снова заменяем на статичную
+      setTimeout(() => {
+        replaceGifWithStatic();
+      }, 10300);
+    }
+
+    function initialAnimation() {
+      buildGrid(); // Создаем сетку сердец, но не показываем их
+      
+      if (isFirstTime) {
+        // Ждем завершения анимации персонажа (10.3 секунды)
+        setTimeout(() => {
+          // Заменяем GIF на статичную картинку
+          replaceGifWithStatic();
+          // Запускаем анимацию сердца
+          animateHearts();
+          isFirstTime = false;
+        }, 10300);
+      } else {
+        // Если не первый раз - сразу запускаем сердца
+        animateHearts();
+      }
+    }
+
+    // При нажатии кнопки повторить - перезапускаем GIF и анимацию сердца
+    replayBtn.addEventListener('click', () => {
+      if (isFirstTime) {
+        initialAnimation();
+      } else {
+        // Принудительная очистка всех элементов
+        container.innerHTML = '';
+        container.classList.remove('pulse');
+        finalText.classList.remove('show');
+        replayBtn.classList.remove('show');
+        
+        // Создаем новую сетку
+        buildGrid();
+        
+        // Перезапускаем GIF персонажа
+        restartCharacterGif();
+        
+        // Запускаем анимацию сердца с задержкой 10.3 сек
+        setTimeout(() => {
+          animateHearts();
+        }, 10300);
+      }
+    });
+    
+    // Функция обратного отсчета
+    function startCountdown() {
+      const countdownScreen = document.getElementById('countdownScreen');
+      const countdownNumber = document.getElementById('countdownNumber');
+      
+      // Показываем экран обратного отсчета
+      countdownScreen.style.display = 'flex';
+      
+      let count = 10;
+      countdownNumber.textContent = count;
+      
+      const countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownNumber.textContent = count;
+          // Перезапускаем анимацию пульсации
+          countdownNumber.style.animation = 'none';
+          countdownNumber.offsetHeight; // trigger reflow
+          countdownNumber.style.animation = 'pulse 1s ease-in-out';
+        } else {
+          clearInterval(countdownInterval);
+          // Скрываем экран обратного отсчета
+          countdownScreen.style.display = 'none';
+          // Показываем основной контент
+          document.querySelector('.main-content').classList.add('show');
+          // Запускаем анимацию
+          initialAnimation();
+        }
+      }, 1000);
+    }
+
+    // При загрузке страницы - запускаем обратный отсчет для всех устройств
+    window.addEventListener('DOMContentLoaded', startCountdown);
+  </script>
+</body>
+</html>
